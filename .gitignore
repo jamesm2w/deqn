@@ -2,3 +2,6 @@
 *.visit
 build/*
 .vscode/*
+*.out
+*.err
+*.sbatch

@@ -35,7 +35,7 @@
     mesh = new Mesh(input);
 
     diffusion = new Diffusion(input, mesh);
-    writer = new VtkWriter(pname, mesh);
+    writer = new VtkWriter("./out/" + pname, mesh);
 
     /* Initial mesh dump */
     if(vis_frequency != -1)
