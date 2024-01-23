@@ -6,3 +6,4 @@ out/*
 *.out
 *.err
 *.sbatch
+perf*
