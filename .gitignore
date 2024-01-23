@@ -1,6 +1,7 @@
 *.vtk
 *.visit
 build/*
+out/*
 .vscode/*
 *.out
 *.err
