@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#ifdef COZ
+#include "coz.h"
+#endif
+
 #define POLY2(i, j, imin, jmin, ni) (((i) - (imin)) + (((j)-(jmin)) * (ni)))
 
 ExplicitScheme::ExplicitScheme(const InputFile* input, Mesh* m) :
@@ -13,11 +17,28 @@ ExplicitScheme::ExplicitScheme(const InputFile* input, Mesh* m) :
 
 void ExplicitScheme::doAdvance(const double dt)
 {
+    #ifdef COZ
+    COZ_BEGIN("doAdvance")
+    #endif
+
+    #ifdef COZ
+    COZ_PROGRESS_NAMED("diffuse")
+    #endif
     diffuse(dt);
 
+    #ifdef COZ
+    COZ_PROGRESS_NAMED("reset")
+    #endif
     reset();
 
+    #ifdef COZ
+    COZ_PROGRESS_NAMED("update_bound")
+    #endif
     updateBoundaries();
+
+    #ifdef COZ
+    COZ_END("doAdvance")
+    #endif
 }
 
 void ExplicitScheme::updateBoundaries()

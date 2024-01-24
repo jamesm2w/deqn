@@ -5,6 +5,10 @@
 #include <iostream>
 #include <cstdlib>
 
+#ifdef COZ
+#include "coz.h"
+#endif
+
 Diffusion::Diffusion(const InputFile* input, Mesh* m) :
     mesh(m) 
 {
@@ -70,5 +74,8 @@ void Diffusion::init()
 
 void Diffusion::doCycle(const double dt)
 {
+    #ifdef COZ
+    COZ_PROGRESS_NAMED("doCycle")
+    #endif
     scheme->doAdvance(dt);
 }
