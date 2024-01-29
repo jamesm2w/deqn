@@ -43,6 +43,7 @@ void ExplicitScheme::reset()
 
     int nx = mesh->getNx()[0]+2;
 
+    #pragma omp parallel for simd collapse(2)
     for(int k = y_min-1; k <= y_max+1; k++) {
         for(int j = x_min-1; j <=  x_max+1; j++) {
             int i = POLY2(j,k,x_min-1,y_min-1,nx);
@@ -67,6 +68,7 @@ void ExplicitScheme::diffuse(double dt)
     double rx = dt/(dx*dx);
     double ry = dt/(dy*dy);
 
+    #pragma omp parallel for simd collapse(2)
     for(int k=y_min; k <= y_max; k++) {
         for(int j=x_min; j <= x_max; j++) {
 
@@ -96,6 +98,7 @@ void ExplicitScheme::reflectBoundaries(int boundary_id)
         case 0: 
             /* top */
             {
+                #pragma omp parallel for
                 for(int j = x_min; j <= x_max; j++) {
                     int n1 = POLY2(j, y_max, x_min-1, y_min-1, nx);
                     int n2 = POLY2(j, y_max+1, x_min-1, y_min-1, nx);
@@ -106,6 +109,7 @@ void ExplicitScheme::reflectBoundaries(int boundary_id)
         case 1:
             /* right */
             {
+                #pragma omp parallel for
                 for(int k = y_min; k <= y_max; k++) {
                     int n1 = POLY2(x_max, k, x_min-1, y_min-1, nx);
                     int n2 = POLY2(x_max+1, k, x_min-1, y_min-1, nx);
@@ -116,6 +120,7 @@ void ExplicitScheme::reflectBoundaries(int boundary_id)
         case 2: 
             /* bottom */
             {
+                #pragma omp parallel for
                 for(int j = x_min; j <= x_max; j++) {
                     int n1 = POLY2(j, y_min, x_min-1, y_min-1, nx);
                     int n2 = POLY2(j, y_min-1, x_min-1, y_min-1, nx);
@@ -126,6 +131,7 @@ void ExplicitScheme::reflectBoundaries(int boundary_id)
         case 3: 
             /* left */
             {
+                #pragma omp parallel for
                 for(int k = y_min; k <= y_max; k++) {
                     int n1 = POLY2(x_min, k, x_min-1, y_min-1, nx);
                     int n2 = POLY2(x_min-1, k, x_min-1, y_min-1, nx);

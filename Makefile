@@ -3,6 +3,10 @@ PRODUCT := deqn
 
 SRCDIR := src
 
+ifeq ($(SERIAL), 1)
+SRCDIR := serial_src
+endif
+
 HDRS := $(wildcard $(SRCDIR)/*.h)
 
 CSRCS := $(wildcard $(SRCDIR)/*.C)
@@ -22,12 +26,17 @@ CXXFLAGS_OPENMP := -fopenmp
 LD := $(CXX)
 
 # select optimized or debug
-#CXXFLAGS := $(CXXFLAGS_OPT) $(CPPFLAGS)
-CXXFLAGS := $(CXXFLAGS_OPT) $(CXXFLAGS_DEBUG) $(CPPFLAGS)
+CXXFLAGS := $(CXXFLAGS_OPT) $(CPPFLAGS)
+# CXXFLAGS := $(CXXFLAGS_OPT) $(CXXFLAGS_DEBUG) $(CPPFLAGS)
 
 # add openmp flags (comment out for serial build)
 CXXFLAGS += $(CXXFLAGS_OPENMP)
 LDFLAGS += $(CXXFLAGS_OPENMP)
+
+ifeq ($(GPROF), 1)
+CXXFLAGS += -pg # -fprofile-arcs # TODO: Look into gcov line coverage
+LDFLAGS += -pg
+endif
 
 all : $(BINARY)
 
