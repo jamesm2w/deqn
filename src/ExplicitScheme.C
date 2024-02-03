@@ -1,6 +1,7 @@
 #include "ExplicitScheme.h"
 
 #include <iostream>
+#include <chrono>
 
 #define POLY2(i, j, imin, jmin, ni) (((i) - (imin)) + (((j)-(jmin)) * (ni)))
 
@@ -13,15 +14,24 @@ ExplicitScheme::ExplicitScheme(const InputFile* input, Mesh* m) :
 
 void ExplicitScheme::doAdvance(const double dt)
 {
+    const auto t0 = std::chrono::high_resolution_clock::now();
     diffuse(dt);
-
+    const auto t1 = std::chrono::high_resolution_clock::now();
+    
     reset();
-
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    
     updateBoundaries();
+    const auto t3 = std::chrono::high_resolution_clock::now();
+    
+    std::cerr << "diffuse\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count() << std::endl;
+    std::cerr << "reset\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() << std::endl;
+    std::cerr << "upbounds\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t3-t2).count() << std::endl;
 }
 
 void ExplicitScheme::updateBoundaries()
 {
+    #pragma omp unroll full
     for (int i = 0; i < 4; i++) {
         reflectBoundaries(i);
     }
@@ -43,7 +53,7 @@ void ExplicitScheme::reset()
 
     int nx = mesh->getNx()[0]+2;
 
-    #pragma omp parallel for simd collapse(2)
+    #pragma omp parallel for simd collapse(2) schedule(static) firstprivate(x_min, y_min, nx)
     for(int k = y_min-1; k <= y_max+1; k++) {
         for(int j = x_min-1; j <=  x_max+1; j++) {
             int i = POLY2(j,k,x_min-1,y_min-1,nx);
@@ -68,15 +78,15 @@ void ExplicitScheme::diffuse(double dt)
     double rx = dt/(dx*dx);
     double ry = dt/(dy*dy);
 
-    #pragma omp parallel for simd collapse(2)
+    #pragma omp parallel for simd collapse(2) schedule(static) firstprivate(x_min, y_min, nx, rx, ry)
     for(int k=y_min; k <= y_max; k++) {
         for(int j=x_min; j <= x_max; j++) {
 
-            int n1 = POLY2(j,k,x_min-1,y_min-1,nx);
-            int n2 = POLY2(j-1,k,x_min-1,y_min-1,nx);
-            int n3 = POLY2(j+1,k,x_min-1,y_min-1,nx);
-            int n4 = POLY2(j,k-1,x_min-1,y_min-1,nx);
-            int n5 = POLY2(j,k+1,x_min-1,y_min-1,nx);
+            int n1 = POLY2(j  , k,  x_min-1,y_min-1,nx);
+            int n2 = POLY2(j-1, k,  x_min-1,y_min-1,nx);
+            int n3 = POLY2(j+1, k,  x_min-1,y_min-1,nx);
+            int n4 = POLY2(j,   k-1,x_min-1,y_min-1,nx);
+            int n5 = POLY2(j,   k+1,x_min-1,y_min-1,nx);
 
             u1[n1] = (1.0-2.0*rx-2.0*ry)*u0[n1] + rx*u0[n2] + rx*u0[n3]
                 + ry*u0[n4] + ry*u0[n5];

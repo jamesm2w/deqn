@@ -1,5 +1,5 @@
 #include "ExplicitScheme.h"
-
+#include <chrono>
 #include <iostream>
 
 #define POLY2(i, j, imin, jmin, ni) (((i) - (imin)) + (((j)-(jmin)) * (ni)))
@@ -13,11 +13,19 @@ ExplicitScheme::ExplicitScheme(const InputFile* input, Mesh* m) :
 
 void ExplicitScheme::doAdvance(const double dt)
 {
+    const auto t0 = std::chrono::high_resolution_clock::now();
     diffuse(dt);
-
+    const auto t1 = std::chrono::high_resolution_clock::now();
+    
     reset();
-
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    
     updateBoundaries();
+    const auto t3 = std::chrono::high_resolution_clock::now();
+    
+    std::cerr << "diffuse\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count() << std::endl;
+    std::cerr << "reset\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() << std::endl;
+    std::cerr << "upbounds\t" << std::chrono::duration_cast<std::chrono::milliseconds>(t3-t2).count() << std::endl;
 }
 
 void ExplicitScheme::updateBoundaries()
