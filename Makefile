@@ -38,6 +38,11 @@ CXXFLAGS += -pg # -fprofile-arcs # TODO: Look into gcov line coverage
 LDFLAGS += -pg
 endif
 
+ifeq ($(PERF), 1)
+CXXFLAGS += -g
+LDFLAGS += -g
+endif
+
 all : $(BINARY)
 
 $(BINARY) : $(OBJS)

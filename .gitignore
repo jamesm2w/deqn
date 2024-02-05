@@ -8,3 +8,4 @@ out/*
 *.sbatch
 perf*
 *.sh
+*.zip
